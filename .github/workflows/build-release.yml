@@ -30,7 +30,10 @@ jobs:
           java-version: "17"
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
+          accept-android-sdk-licenses: true
 
       - name: Set up Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
@@ -77,6 +80,13 @@ jobs:
           APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
           "$APKSIGNER" verify --verbose "$APK"
           cp "$APK" "SmartAttendance-v${{ steps.ver.outputs.name }}.apk"
+
+      - name: Upload APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SmartAttendance-v${{ steps.ver.outputs.name }}
+          path: SmartAttendance-v${{ steps.ver.outputs.name }}.apk
+          if-no-files-found: error
 
       - name: Create / update GitHub Release
         uses: softprops/action-gh-release@v2
